@@ -53,6 +53,10 @@ RTSP2WEB_PORT=8080     # Порт веб-сервера
 
 # Настройки качества
 RTSP2WEB_QUALITY=80    # Качество JPEG (1-100)
+
+# Логирование
+RTSP2WEB_LOG_LEVEL=info  # Уровень логирования (debug, info, warning, error)
+RTSP2WEB_ACCESS_LOG=false  # Логирование запросов (как "INFO:     127.0.0.1:39890 - "GET /api/frame/1 HTTP/1.1" 200 OK")
 ```
 
 ## Запуск

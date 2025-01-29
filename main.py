@@ -30,6 +30,8 @@ class Config:
         self.host = os.getenv("RTSP2WEB_HOST", "0.0.0.0")
         self.port = int(os.getenv("RTSP2WEB_PORT", "8080"))
         self.quality = int(os.getenv("RTSP2WEB_QUALITY", "80"))
+        self.log_level = os.getenv("RTSP2WEB_LOG_LEVEL", "info")
+        self.access_log = os.getenv("RTSP2WEB_ACCESS_LOG", "false").lower() == "true"
         
         # Load streams from config file
         self.streams: List[Stream] = []
@@ -141,4 +143,4 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host=config.host, port=config.port)
+    uvicorn.run(app, host=config.host, port=config.port, log_level=config.log_level, access_log=config.access_log)

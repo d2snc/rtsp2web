@@ -6,6 +6,14 @@ class StreamViewer {
         this.fullscreenBtn = document.getElementById('fullscreenBtn');
         this.container = document.querySelector('.container');
         this.frameRequests = new Map();
+        this.currentSingleStreamIndex = null;
+        
+        // Single stream view elements
+        this.singleStreamView = document.getElementById('singleStreamView');
+        this.singleStreamTitle = document.getElementById('singleStreamTitle');
+        this.singleStreamImage = document.getElementById('singleStreamImage');
+        this.backToGridBtn = document.getElementById('backToGrid');
+        
         this.init();
     }
 
@@ -13,6 +21,7 @@ class StreamViewer {
         try {
             // Setup event listeners
             this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+            this.backToGridBtn.addEventListener('click', () => this.hideSingleStream());
             window.addEventListener('resize', () => this.updateLayout());
 
             // Load streams
@@ -56,6 +65,10 @@ class StreamViewer {
             
             container.appendChild(title);
             container.appendChild(img);
+            
+            // Add click handler for single stream view
+            container.addEventListener('click', () => this.showSingleStream(index));
+            
             this.streamGrid.appendChild(container);
         });
     }
@@ -73,9 +86,17 @@ class StreamViewer {
     }
 
     updateStreamImage(index, frame) {
-        const img = this.streamGrid.children[index]?.querySelector('img');
-        if (img && frame) {
-            img.src = `data:image/jpeg;base64,${frame}`;
+        if (this.currentSingleStreamIndex === index) {
+            // Update single stream view image
+            if (this.singleStreamImage && frame) {
+                this.singleStreamImage.src = `data:image/jpeg;base64,${frame}`;
+            }
+        } else {
+            // Update grid view image
+            const img = this.streamGrid.children[index]?.querySelector('img');
+            if (img && frame) {
+                img.src = `data:image/jpeg;base64,${frame}`;
+            }
         }
     }
 
@@ -105,6 +126,30 @@ class StreamViewer {
             cancelAnimationFrame(requestId);
             this.frameRequests.delete(index);
         });
+    }
+
+    showSingleStream(index) {
+        this.currentSingleStreamIndex = index;
+        const stream = this.streams[index];
+        
+        // Update single stream view
+        this.singleStreamTitle.textContent = stream.name;
+        this.singleStreamView.classList.remove('hidden');
+        
+        // Stop streaming all other streams
+        this.stopStreaming();
+        
+        // Start streaming only the selected stream
+        this.frameRequests.set(index, true);
+        this.streamLoop(index);
+    }
+
+    hideSingleStream() {
+        this.singleStreamView.classList.add('hidden');
+        this.currentSingleStreamIndex = null;
+        
+        // Restart streaming all streams
+        this.startStreaming();
     }
 
     updateLayout() {

@@ -190,3 +190,84 @@ main {
 .fullscreen .stream-grid {
     height: calc(100vh - var(--header-height) - var(--grid-gap) * 2);
 }
+
+/* Single stream view styles */
+.single-stream-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--background-color);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+}
+
+.single-stream-view.hidden {
+    display: none;
+}
+
+.single-stream-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: var(--grid-gap);
+}
+
+.stream-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    border-radius: 8px 8px 0 0;
+}
+
+.stream-header h2 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.stream-content {
+    flex: 1;
+    background-color: var(--secondary-color);
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.stream-content .stream-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Make stream containers clickable */
+.stream-container {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.stream-container:hover {
+    transform: scale(1.02);
+}
+
+#backToGrid {
+    background-color: transparent;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+#backToGrid:hover {
+    background-color: var(--accent-color);
+}
+
+#backToGrid svg {
+    fill: var(--text-color);
+}

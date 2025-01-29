@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="mainContainer">
         <header>
-            <h1>RTSP Stream Viewer</h1>
+            <h1 id="pageTitle">RTSP Stream Viewer</h1>
             <div class="controls">
                 <button id="fullscreenBtn" title="Toggle Fullscreen">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -26,6 +26,21 @@
         <div id="loadingOverlay" class="loading-overlay">
             <div class="spinner"></div>
             <p>Loading streams...</p>
+        </div>
+    </div>
+    <div id="singleStreamView" class="single-stream-view hidden">
+        <div class="single-stream-container">
+            <div class="stream-header">
+                <h2 id="singleStreamTitle"></h2>
+                <button id="backToGrid" title="Back to Grid">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="stream-content">
+                <img id="singleStreamImage" class="stream-image" alt="Stream">
+            </div>
         </div>
     </div>
     <script src="/static/script.js"></script>

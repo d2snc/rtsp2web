@@ -1,0 +1,17 @@
+services:
+  rtsp2web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: RTSP2Web
+    volumes:
+      - ./config.json:/app/config.json
+    environment:
+      - RTSP2WEB_LOGIN=user
+      - RTSP2WEB_PASSWORD=pass
+      - RTSP2WEB_HOST=0.0.0.0
+      - RTSP2WEB_PORT=8080
+      - RTSP2WEB_QUALITY=80
+    ports:
+      - 8080:8080
+    restart: unless-stopped

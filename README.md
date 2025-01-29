@@ -1,94 +1,174 @@
 # RTSP2WEB
 
-A simple web-based RTSP stream viewer that allows viewing multiple RTSP streams in a responsive grid layout through a web interface.
+Веб-система для просмотра RTSP-потоков через браузер с возможностью отображения нескольких потоков одновременно в виде мозаики.
 
-## Features
+## Принцип работы
 
-- View multiple RTSP streams simultaneously in a grid layout
-- Automatic grid layout adjustment based on number of streams (1-16)
-- Basic authentication for secure access
-- Responsive design with fullscreen support
-- Hover to view stream titles
-- Automatic reconnection on stream failure
-- Frame rate and quality control through environment variables
+Система состоит из двух основных компонентов:
 
-## Requirements
+1. **Бэкенд (Python/FastAPI)**
+   - Получает RTSP-потоки с камер через OpenCV
+   - Конвертирует кадры в JPEG и отправляет их через HTTP
+   - Обеспечивает базовую авторизацию
+   - Автоматически переподключается при обрыве потока
 
-- Python 3.8+
-- OpenCV with RTSP support
-- Modern web browser with JavaScript enabled
+2. **Фронтенд (HTML/CSS/JavaScript)**
+   - Отображает потоки в адаптивной сетке
+   - Автоматически подстраивает размер ячеек под количество потоков
+   - Поддерживает полноэкранный режим
+   - Показывает названия потоков при наведении
 
-## Installation
+## Установка
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd rtsp2web
-```
+1. Установите Python 3.8 или выше, если он ещё не установлен.
 
-2. Install the required Python packages:
+2. Установите зависимости:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Configure your streams in `config.json`:
+3. Настройте конфигурацию потоков в файле `config.json`:
 ```json
 [
   {
-    "url": "rtsp://username:password@hostname:port/stream",
-    "name": "Stream Name"
+    "url": "rtsp://login:password@ip:port/path",
+    "name": "Название камеры"
+  },
+  {
+    "url": "rtsp://login:password@ip:port/path",
+    "name": "Название камеры"
   }
 ]
 ```
 
-4. Set up environment variables in `.env`:
+4. Создайте файл `.env` с настройками системы:
 ```env
+# Логин и пароль для входа в веб-интерфейс
 RTSP2WEB_LOGIN=user
 RTSP2WEB_PASSWORD=pass
-RTSP2WEB_HOST=0.0.0.0
-RTSP2WEB_PORT=8080
-RTSP2WEB_QUALITY=80
+
+# Сетевые настройки
+RTSP2WEB_HOST=0.0.0.0  # 0.0.0.0 для доступа со всех интерфейсов
+RTSP2WEB_PORT=8080     # Порт веб-сервера
+
+# Настройки качества
+RTSP2WEB_QUALITY=80    # Качество JPEG (1-100)
 ```
 
-## Usage
+## Запуск
 
-1. Start the server:
+1. Запустите сервер:
 ```bash
 python main.py
 ```
 
-2. Open your web browser and navigate to:
+2. Откройте в браузере:
 ```
 http://localhost:8080
 ```
 
-3. Enter the credentials configured in your `.env` file when prompted.
+3. Введите логин и пароль, указанные в файле `.env`
 
-## Environment Variables
+## Структура проекта
 
-- `RTSP2WEB_LOGIN`: Username for web interface authentication
-- `RTSP2WEB_PASSWORD`: Password for web interface authentication
-- `RTSP2WEB_HOST`: Host to bind the server to (default: 0.0.0.0)
-- `RTSP2WEB_PORT`: Port to run the server on (default: 8080)
-- `RTSP2WEB_QUALITY`: JPEG quality for stream frames (1-100, default: 80)
+- `main.py` - основной файл сервера
+  - Обработка RTSP-потоков
+  - API-эндпоинты
+  - Авторизация
+  - Конвертация кадров
 
-## Browser Support
+- `static/`
+  - `index.html` - HTML-разметка интерфейса
+  - `styles.css` - стили и адаптивная сетка
+  - `script.js` - клиентская логика
+    - Получение списка потоков
+    - Отображение кадров
+    - Управление раскладкой
+    - Обработка ошибок
 
-The application works best with modern browsers that support:
-- CSS Grid Layout
-- Fullscreen API
-- Fetch API
-- async/await
-- ES6+ features
+- `config.json` - конфигурация RTSP-потоков
+- `.env` - настройки системы
+- `requirements.txt` - зависимости Python
 
-## Security Considerations
+## Особенности реализации
 
-- The application uses basic authentication. Consider running behind a reverse proxy with HTTPS for production use.
-- RTSP credentials are stored in plain text in config.json. Ensure proper file permissions are set.
-- The server should be run in a secure environment as it needs access to RTSP streams.
+### Бэкенд
 
-## Limitations
+1. **Обработка потоков**
+   - Каждый поток открывается через OpenCV
+   - Кадры конвертируются в JPEG для передачи через HTTP
+   - При обрыве соединения происходит автоматическое переподключение
+   - Последний успешно полученный кадр кэшируется
 
-- Maximum of 16 simultaneous streams supported
-- RTSP streams must be accessible from the server
-- Performance depends on server capabilities and network conditions
+2. **API**
+   - `/api/streams` - список доступных потоков
+   - `/api/frame/{index}` - получение кадра конкретного потока
+   - Все запросы требуют базовой авторизации
+
+### Фронтенд
+
+1. **Адаптивная сетка**
+   - Автоматический расчёт размеров ячеек
+   - Поддержка от 1 до 16 потоков
+   - Сохранение пропорций видео
+
+2. **Оптимизация производительности**
+   - Использование requestAnimationFrame для обновления кадров
+   - Отмена запросов при остановке стрима
+   - Кэширование элементов DOM
+
+3. **Интерфейс**
+   - Тёмная тема
+   - Полноэкранный режим
+   - Названия потоков при наведении
+   - Индикация загрузки и ошибок
+
+## Безопасность
+
+1. **Авторизация**
+   - Базовая HTTP-авторизация
+   - Защита всех эндпоинтов
+   - Безопасное сравнение паролей
+
+2. **Рекомендации**
+   - Используйте HTTPS при работе через интернет
+   - Храните файл .env в безопасном месте
+   - Ограничьте доступ к config.json
+   - Запускайте сервер в защищённой среде
+
+## Ограничения
+
+- Максимум 16 одновременных потоков
+- RTSP-потоки должны быть доступны с сервера
+- Производительность зависит от:
+  - Мощности сервера
+  - Пропускной способности сети
+  - Количества и качества потоков
+  - Возможностей браузера
+
+## Решение проблем
+
+1. **Потоки не отображаются**
+   - Проверьте доступность RTSP-потоков с сервера
+   - Убедитесь в правильности учётных данных в config.json
+   - Проверьте логи сервера на наличие ошибок
+
+2. **Низкая производительность**
+   - Снизьте качество JPEG
+   - Уменьшите количество одновременных потоков
+   - Проверьте загрузку CPU и сети
+
+3. **Ошибки авторизации**
+   - Проверьте правильность учётных данных в .env
+   - Убедитесь, что браузер поддерживает базовую авторизацию
+   - Очистите кэш браузера
+
+## Требования к системе
+
+- Python 3.8+
+- OpenCV с поддержкой RTSP
+- Современный браузер с поддержкой:
+  - CSS Grid Layout
+  - Fullscreen API
+  - Fetch API
+  - ES6+

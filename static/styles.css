@@ -98,8 +98,51 @@ main {
     transition: opacity 0.2s;
 }
 
+.stream-status {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    font-size: 0.8rem;
+    z-index: 1;
+    text-align: center;
+}
+
 .stream-container:hover .stream-title {
     opacity: 1;
+}
+
+/* Stream status styles */
+.status-error .stream-status {
+    background-color: rgba(220, 53, 69, 0.8);  /* Red */
+}
+
+.status-connecting .stream-status {
+    background-color: rgba(255, 193, 7, 0.8);  /* Yellow */
+}
+
+.status-reconnecting .stream-status {
+    background-color: rgba(255, 193, 7, 0.8);  /* Yellow */
+    animation: pulse 1s infinite;
+}
+
+.status-cooldown .stream-status {
+    background-color: rgba(108, 117, 125, 0.8);  /* Gray */
+}
+
+.status-error .stream-image,
+.status-connecting .stream-image,
+.status-reconnecting .stream-image,
+.status-cooldown .stream-image {
+    filter: grayscale(100%) brightness(50%);
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
 }
 
 .stream-image {

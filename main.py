@@ -37,6 +37,7 @@ class Config:
         self.reconnect_timeout = int(os.getenv("RTSP2WEB_RECONNECT_TIMEOUT", "5"))
         self.log_level = os.getenv("RTSP2WEB_LOG_LEVEL", "info")
         self.access_log = os.getenv("RTSP2WEB_ACCESS_LOG", "false").lower() == "true"
+        self.idle_timeout = int(os.getenv("RTSP2WEB_IDLE_TIMEOUT", "120"))
         
         # Load streams from config file
         self.streams: List[Stream] = []
@@ -114,6 +115,9 @@ class StreamManager:
         self.buffer_size = 3  # Keep last 3 frames
         self.processing_threads: Dict[str, threading.Thread] = {}
         self.stop_flags: Dict[str, threading.Event] = {}
+        self.last_access_times: Dict[str, float] = {}
+        idle_checker_thread = threading.Thread(target=self._idle_checker, daemon=True)
+        idle_checker_thread.start()
         
     def _process_frames(self, url: str, stop_event: threading.Event):
         """Background thread for continuous frame processing"""
@@ -175,7 +179,7 @@ class StreamManager:
                 if retry_count >= config.max_retries:
                     time_since_error = time.time() - last_error_time
                     if time_since_error < config.retry_interval:
-                        logger.warning(f"Too many connection attempts for {url}, waiting {config.retry_interval - time_since_error:.1f}s")
+                        logger.debug(f"Too many connection attempts for {url}, waiting {config.retry_interval - time_since_error:.1f}s")
                         self.stream_status[url] = StreamStatus.COOLDOWN
                         return None
                     else:
@@ -279,11 +283,11 @@ class StreamManager:
     
     def get_frame(self, url: str) -> Optional[str]:
         """Get the latest frame from the buffer"""
+        self.last_access_times[url] = time.time()
         if url not in self.captures:
             cap = self.get_stream(url)
             if not cap:
                 return None
-            
             # Initialize frame processing thread
             if url not in self.processing_threads or not self.processing_threads[url].is_alive():
                 stop_event = threading.Event()
@@ -292,7 +296,6 @@ class StreamManager:
                 thread.daemon = True
                 thread.start()
                 self.processing_threads[url] = thread
-
         # Return the latest frame from buffer
         if url in self.frame_buffers and self.frame_buffers[url]:
             return self.frame_buffers[url][-1]
@@ -325,6 +328,23 @@ class StreamManager:
     def get_last_frame_time(self, url: str) -> Optional[float]:
         """Get the timestamp of the last received frame"""
         return self.last_frame_times.get(url)
+
+    def _idle_checker(self):
+        """Background thread to stop idle streams"""
+        while True:
+            current_time = time.time()
+            for url in list(self.captures.keys()):
+                last_access = self.last_access_times.get(url)
+                if last_access and (current_time - last_access > config.idle_timeout):
+                    logger.info(f"Idle timeout reached for stream {url}. Stopping stream.")
+                    if url in self.stop_flags:
+                        self.stop_flags[url].set()
+                    if url in self.captures:
+                        cap = self.captures[url]
+                        cap.release()
+                        del self.captures[url]
+                    self.stream_status[url] = "idle"
+            time.sleep(5)
 
 stream_manager = StreamManager()
 

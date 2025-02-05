@@ -4,6 +4,8 @@ English | [Russian](README.ru.md)
 
 A web-based system for viewing RTSP streams in a browser with the ability to display multiple streams simultaneously in a mosaic layout.
 
+![RTSP2WEB Screenshot](https://i.imgur.com/GNL3ebp.png)
+
 ## How It Works
 
 The system consists of two main components:

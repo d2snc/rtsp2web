@@ -1,188 +1,186 @@
 # RTSP2WEB
 
-Веб-система для просмотра RTSP-потоков через браузер с возможностью отображения нескольких потоков одновременно в виде мозаики.
+English | [Russian](README.ru.md)  
 
-## Принцип работы
+A web-based system for viewing RTSP streams in a browser with the ability to display multiple streams simultaneously in a mosaic layout.
 
-Система состоит из двух основных компонентов:
+## How It Works
 
-1. **Бэкенд (Python/FastAPI)**
-   - Получает RTSP-потоки с камер через OpenCV
-   - Конвертирует кадры в JPEG и отправляет их через HTTP
-   - Обеспечивает базовую авторизацию
-   - Автоматически переподключается при обрыве потока
+The system consists of two main components:
 
-2. **Фронтенд (HTML/CSS/JavaScript)**
-   - Отображает потоки в адаптивной сетке
-   - Автоматически подстраивает размер ячеек под количество потоков
-   - Поддерживает полноэкранный режим
-   - Показывает названия потоков при наведении
+1. **Backend (Python/FastAPI)**
+   - Retrieves RTSP streams from cameras using OpenCV
+   - Converts frames to JPEG and sends them via HTTP
+   - Implements basic authentication
+   - Automatically reconnects after a stream disconnection
 
-## Установка
+2. **Frontend (HTML/CSS/JavaScript)**
+   - Displays streams in a responsive grid
+   - Automatically adjusts cell sizes based on the number of streams
+   - Supports fullscreen mode
+   - Shows stream names on hover
 
-1. Установите Python 3.8 или выше, если он ещё не установлен.
+## Installation
 
-2. Установите зависимости:
+1. Install Python 3.8 or later if it's not already installed.
+
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Настройте конфигурацию потоков в файле `config.json`:
+3. Configure the streams in the `config.json` file:
 ```json
 [
   {
     "url": "rtsp://login:password@ip:port/path",
-    "name": "Название камеры"
+    "name": "Camera Name"
   },
   {
     "url": "rtsp://login:password@ip:port/path",
-    "name": "Название камеры"
+    "name": "Camera Name"
   }
 ]
 ```
 
-4. Создайте файл `.env` с настройками системы:
+4. Create a `.env` file with system settings or put them in the environment section of `docker-compose.yml`:
 ```env
-# Логин и пароль для входа в веб-интерфейс
+# Login credentials for the web interface
 RTSP2WEB_LOGIN=user
 RTSP2WEB_PASSWORD=pass
 
-# Сетевые настройки
-RTSP2WEB_HOST=0.0.0.0  # 0.0.0.0 для доступа со всех интерфейсов
-RTSP2WEB_PORT=8080     # Порт веб-сервера
+# Network settings
+RTSP2WEB_HOST=0.0.0.0  # 0.0.0.0 to allow access from all interfaces
+RTSP2WEB_PORT=8080     # Web server port
 
-# Настройки качества и производительности
-RTSP2WEB_FPS=10               # Количество кадров в секунду
-RTSP2WEB_QUALITY=80           # Качество JPEG (1-100)
-RTSP2WEB_MAX_WIDTH=1280       # Максимальная ширина кадра (в пикселях)
+# Quality and performance settings
+RTSP2WEB_FPS=10               # Frames per second
+RTSP2WEB_QUALITY=80           # JPEG quality (1-100)
+RTSP2WEB_MAX_WIDTH=1280       # Maximum frame width (in pixels)
 
-# Параметры переподключения
-RTSP2WEB_MAX_RETRIES=3        # Максимальное число попыток переподключения
-RTSP2WEB_RETRY_INTERVAL=5     # Интервал между попытками переподключения (сек)
-RTSP2WEB_RECONNECT_TIMEOUT=5  # Таймаут переподключения (сек)
+# Reconnection parameters
+RTSP2WEB_MAX_RETRIES=3        # Maximum number of reconnection attempts
+RTSP2WEB_RETRY_INTERVAL=5     # Interval between reconnection attempts (sec)
+RTSP2WEB_RECONNECT_TIMEOUT=5  # Reconnection timeout (sec)
 
-# Логирование
-RTSP2WEB_LOG_LEVEL=info       # Уровень логирования (debug, info, warning, error)
-RTSP2WEB_ACCESS_LOG=false     # Логирование запросов (true или false)
+# Logging
+RTSP2WEB_LOG_LEVEL=info       # Logging level (debug, info, warning, error)
+RTSP2WEB_ACCESS_LOG=false     # Request logging (true or false)
 
-# Управление неактивными потоками
-RTSP2WEB_IDLE_TIMEOUT=120      # Время бездействия (сек), по истечении которого стрим отключается
+# Idle stream management
+RTSP2WEB_IDLE_TIMEOUT=120      # Idle time (sec) before a stream is closed
 ```
 
-## Запуск
+## Running the Server
 
-1. Запустите сервер:
+1. Start the server:
 ```bash
 python main.py
 ```
 
-2. Откройте в браузере:
+2. Open the browser and go to:
 ```
 http://localhost:8080
 ```
 
-3. Введите логин и пароль, указанные в файле `.env`
+3. Enter the login and password specified in the `.env` file.
 
-## Структура проекта
+## Project Structure
 
-- `main.py` - основной файл сервера
-  - Обработка RTSP-потоков
-  - API-эндпоинты
-  - Авторизация
-  - Конвертация кадров
+- `main.py` - The main server file
+  - RTSP stream processing
+  - API endpoints
+  - Authentication
+  - Frame conversion
 
 - `static/`
-  - `index.html` - HTML-разметка интерфейса
-  - `styles.css` - стили и адаптивная сетка
-  - `script.js` - клиентская логика
-    - Получение списка потоков
-    - Отображение кадров
-    - Управление раскладкой
-    - Обработка ошибок
+  - `index.html` - Interface HTML layout
+  - `styles.css` - Styles and responsive grid
+  - `script.js` - Client-side logic
+    - Fetching the list of streams
+    - Displaying frames
+    - Layout management
+    - Error handling
 
-- `config.json` - конфигурация RTSP-потоков
-- `.env` - настройки системы
-- `requirements.txt` - зависимости Python
+- `config.json` - RTSP stream configuration
+- `.env` - System settings
+- `requirements.txt` - Python dependencies
 
-## Особенности реализации
+## Implementation Features
 
-### Бэкенд
+### Backend
 
-1. **Обработка потоков**
-   - Каждый поток открывается через OpenCV
-   - Кадры конвертируются в JPEG для передачи через HTTP
-   - При обрыве соединения происходит автоматическое переподключение
-   - Последний успешно полученный кадр кэшируется
+1. **Stream Processing**
+   - Each stream is opened via OpenCV.
+   - Frames are converted to JPEG and sent via HTTP.
+   - Automatic reconnection occurs if the connection is lost.
+   - The last successfully received frame is cached.
 
 2. **API**
-   - `/api/streams` - список доступных потоков
-   - `/api/frame/{index}` - получение кадра конкретного потока
-   - Все запросы требуют базовой авторизации
+   - `/api/streams` - List of available streams
+   - `/api/frame/{index}` - Fetch a frame for a specific stream
+   - All requests require basic authentication.
 
-### Фронтенд
+### Frontend
 
-1. **Адаптивная сетка**
-   - Автоматический расчёт размеров ячеек
-   - Поддержка от 1 до 16 потоков
-   - Сохранение пропорций видео
+1. **Responsive Grid**
+   - Automatically calculates cell sizes.
+   - Supports 1 to 16 streams.
+   - Maintains video aspect ratio.
 
-2. **Оптимизация производительности**
-   - Использование requestAnimationFrame для обновления кадров
-   - Отмена запросов при остановке стрима
-   - Кэширование элементов DOM
+2. **Performance Optimization**
+   - Uses requestAnimationFrame for frame updates.
+   - Cancels requests when a stream is stopped.
+   - DOM elements are cached.
 
-3. **Интерфейс**
-   - Тёмная тема
-   - Полноэкранный режим
-   - Названия потоков при наведении
-   - Индикация загрузки и ошибок
+3. **User Interface**
+   - Dark mode.
+   - Fullscreen mode.
+   - Stream names on hover.
+   - Loading and error indicators.
 
-## Безопасность
+## Security
 
-1. **Авторизация**
-   - Базовая HTTP-авторизация
-   - Защита всех эндпоинтов
-   - Безопасное сравнение паролей
+1. **Authentication**
+   - Basic HTTP authentication.
+   - Protection for all endpoints.
+   - Secure password comparison.
 
-2. **Рекомендации**
-   - Используйте HTTPS при работе через интернет
-   - Храните файл .env в безопасном месте
-   - Ограничьте доступ к config.json
-   - Запускайте сервер в защищённой среде
+2. **Recommendations**
+   - Use HTTPS when accessing over the internet.
+   - Keep the `.env` file secure.
+   - Restrict access to `config.json`.
+   - Run the server in a secure environment.
 
-## Ограничения
+## Limitations
 
-- Максимум 16 одновременных потоков
-- RTSP-потоы должны быть доступны с сервера
-- Производительность зависит от:
-  - Мощности сервера
-  - Пропускной способности сети
-  - Количества и качества потоков
-  - Возможностей браузера
+- Maximum of 16 simultaneous streams.
+- RTSP streams must be accessible from the server.
+- Performance depends on:
+  - Server power.
+  - Network bandwidth.
+  - Number and quality of streams.
+  - Browser capabilities.
 
-## Решение проблем
+## Troubleshooting
 
-1. **Потоки не отображаются**
-   - Проверьте доступность RTSP-потоков с сервера
-   - Убедитесь в правильности учётных данных в config.json
-   - Проверьте логи сервера на наличие ошибок
+1. **Streams are not displaying**
+   - Check if RTSP streams are accessible from the server.
+   - Ensure credentials in `config.json` are correct.
+   - Check server logs for errors.
 
-2. **Низкая производительность**
-   - Снизьте качество JPEG
-   - Уменьшите количество одновременных потоков
-   - Проверьте загрузку CPU и сети
+2. **Low performance**
+   - Lower JPEG quality.
+   - Reduce the number of simultaneous streams.
+   - Monitor CPU and network usage.
 
-3. **Ошибки авторизации**
-   - Проверьте правильность учётных данных в .env
-   - Убедитесь, что браузер поддерживает базовую авторизацию
-   - Очистите кэш браузера
+3. **Authentication errors**
+   - Verify credentials in `.env`.
+   - Ensure the browser supports basic authentication.
+   - Clear the browser cache.
 
-## Требования к системе
+## System Requirements
 
 - Python 3.8+
-- OpenCV с поддержкой RTSP
-- Современный браузер с поддержкой:
-  - CSS Grid Layout
-  - Fullscreen API
-  - Fetch API
-  - ES6+
+- OpenCV with RTSP support
+- Modern browser 

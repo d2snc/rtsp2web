@@ -212,11 +212,11 @@ class StreamManager:
                     "allowed_media_types": "video", # Only receive video streams
                 }
                 
-                if "?" not in stream_url:
-                    stream_url += "?"
-                else:
-                    stream_url += "&"
-                stream_url += "&".join(f"{k}={v}" for k, v in rtsp_options.items())
+                #if "?" not in stream_url:
+                #    stream_url += "?"
+                #else:
+                #    stream_url += "&"
+                #stream_url += "&".join(f"{k}={v}" for k, v in rtsp_options.items())
             elif is_mjpeg:
                 # MJPEG-specific options
                 mjpeg_options = {
